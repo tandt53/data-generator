@@ -1,0 +1,27 @@
+{
+  "name": "test-data-utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ts-node/register --recursive test/**/*.test.ts"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.0.3",
+    "zod": "^3.23.8",
+    "ulid": "2.3.0",
+    "@paralleldrive/cuid2": "2.2.1",
+    "randexp": "^0.5.3",
+    "date-fns": "^2.30.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "ts-node": "^10.9.1",
+    "mocha": "^10.2.0",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.10",
+    "@types/chai": "^4.3.9"
+  },
+  "private": true
+}
