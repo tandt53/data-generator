@@ -303,36 +303,6 @@ export class StringGenerator {
                     });
                 }
             }
-        // } else if (schema instanceof z.ZodEffects) {
-        //
-        //
-        //     // handle domain specific tests
-        //     const domain = schema.description || "";
-        //     if (domain.startsWith("date.")) {
-        //         const [, constraint, dateParams] = domain.split("_");
-        //         const [dateFormat] = dateParams.split("_").slice(1);
-        //
-        //         const currentDate = new Date();
-        //         let date: Date;
-        //
-        //         if (constraint === "before") {
-        //             date = addDays(currentDate, 1); // Future date
-        //         } else {
-        //             date = subDays(currentDate, 1); // Past date
-        //         }
-        //
-        //         const formattedDate = format(date, dateFormat);
-        //         testCases.push({description: `invalid ${domain}`, input: formattedDate, isValid: false});
-        //
-        //         // Also add an incorrectly formatted date
-        //         testCases.push({
-        //             description: `invalid format for ${domain}`,
-        //             input: "invalid-date-format",
-        //             isValid: false
-        //         });
-        //     }
-        // }
-        // Add a non-string test case
         testCases.push({description: "not a string", input: 123, isValid: false});
         return testCases;
     }

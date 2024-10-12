@@ -4,7 +4,7 @@ import {TestCase} from "../types";
 
 export class EnumGenerator {
     // Method to generate valid test cases for a Zod enum
-    public static generateValidCases(schema: z.ZodEnum<any>): TestCase[] {
+    public static valid(schema: z.ZodEnum<any>): TestCase[] {
         const testCases: TestCase[] = [];
         const enumValues = schema._def.values;
 
@@ -21,7 +21,7 @@ export class EnumGenerator {
     }
 
     // Method to generate invalid test cases for a Zod enum
-    public static generateInvalidCases(schema: z.ZodEnum<any>): TestCase[] {
+    public static invalid(schema: z.ZodEnum<any>): TestCase[] {
         const testCases: TestCase[] = [];
         const enumValues = schema._def.values;
 

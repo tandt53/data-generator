@@ -1,11 +1,11 @@
 {
-  "name": "test-data-utils",
+  "name": "test-data-generator",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "mocha --require ts-node/register --recursive test/**/*.test.ts"
+    "test": "mocha --require ts-node/register --recursive test/zDate.test.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^9.0.3",

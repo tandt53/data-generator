@@ -1,6 +1,6 @@
 import {ZodEffects} from "zod";
 import {TestCase} from "../types";
-import {REGEX_ZDATE, zDateValidGenerator} from "../zod/zDate";
+import {REGEX_ZDATE, zDateInvalidGenerator, zDateValidGenerator} from "../zod/zDate";
 
 
 export class ZodEffectsGenerator {
@@ -14,6 +14,10 @@ export class ZodEffectsGenerator {
     }
 
     invalid(schema: ZodEffects<any>): TestCase[] {
+        const domain = schema.description
+        if (domain && REGEX_ZDATE.test(domain)) {
+            return zDateInvalidGenerator(domain);
+        }
         return []
     }
 }

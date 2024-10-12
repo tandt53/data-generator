@@ -28,19 +28,27 @@ export class NumberGenerator {
             }
         }
 
-        if (min === -Infinity && max === Infinity) {
+        // Handle infinite cases if finite is defined
+        if (isFinite) {
             testCases.push({
-                description: "valid random integer",
-                input: faker.number.int(),
-                isValid: true
+                description: "invalid infinite number",
+                input: Infinity,
+                isValid: false
             });
-            if (!isInt) { // if int is not defined, it should allow float number
-                testCases.push({
-                    description: "valid random float",
-                    input: faker.number.float(),
-                    isValid: true
-                });
-            }
+            testCases.push({
+                description: "invalid negative infinite number",
+                input: -Infinity,
+                isValid: false
+            });
+            testCases.push({
+                description: "invalid NaN",
+                input: NaN,
+                isValid: false
+            });
+        }
+
+        if (min === -Infinity && max === Infinity) {
+            // nothing to do
         } else {
             if (min !== -Infinity) {
                 testCases.push({

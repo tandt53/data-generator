@@ -33,7 +33,7 @@ export const zDate = ({
             (val) => {
                 try {
                     const date = parse(val, dateFormat, new Date());
-                    return compareFunc(date, currentDate) && (isDateBefore ? isAfter(date, constraintDate) : isBefore(date, constraintDate));
+                    return compareFunc(date, currentDate) && (isDateBefore ? isBefore(date, constraintDate) : isAfter(date, constraintDate));
                 } catch {
                     return false;
                 }
@@ -57,16 +57,112 @@ export const zDateValidGenerator = (domain: string): TestCase[] => {
     let date: Date;
 
     if (constraint === "before") {
-        date = subYears(subMonths(subDays(currentDate, days), months), years);
-    } else {
-        date = addYears(addMonths(addDays(currentDate, days), months), years);
-    }
+        // before yeas, months, days
+        // date = sub(currentDate, years, months, days);
+        testCases.push(sub(currentDate, years, months, days, "before", dateFormat));
 
-    const formattedDate = format(date, dateFormat);
-    testCases.push({
-        description: `valid date ${constraint} ${years}y${months}m${days}d using ${dateFormat} format`,
-        input: formattedDate,
-        isValid: true
-    });
+        // before years, months, days + 1
+        testCases.push(sub(currentDate, years, months, days + 1, "before", dateFormat));
+
+    } else {
+        // after years, months, days
+        testCases.push(add(currentDate, years, months, days, "after", dateFormat));
+
+        // after years, months, days - 1
+        testCases.push(testcase(currentDate, years, months, days - 1, "after", dateFormat));
+    }
     return testCases;
 }
+
+export const zDateInvalidGenerator = (domain: string) => {
+    const testCases: TestCase[] = [];
+    const [constraint, dateParams, dateFormat, locale] = domain.slice(5).split("_");
+    const years = Number(dateParams.split("y")[0]);
+    const months = Number(dateParams.split("y")[1].split("m")[0]);
+    const days = Number(dateParams.split("y")[1].split("m")[1].split("d")[0]);
+
+    const currentDate = new Date();
+    let date: Date;
+
+    if (constraint === "before") {
+        // before yeas, months, days
+        testCases.push(sub(currentDate, years, months, days - 1, "before", dateFormat, false));
+
+    } else {
+        // after years, months, days
+        testCases.push(add(currentDate, years, months, days + 1, "after", dateFormat, false));
+    }
+
+
+    // Example invalid date cases
+    testCases.push({
+        description: `Invalid date: "not-a-date"`,
+        input: "not-a-date",
+        isValid: false,
+    });
+
+    testCases.push({
+        description: `Invalid date: 12345`,
+        input: 12345,
+        isValid: false,
+    });
+
+    testCases.push({
+        description: `Invalid date: null`,
+        input: null,
+        isValid: false,
+    });
+
+    testCases.push({
+        description: `Invalid date: undefined`,
+        input: undefined,
+        isValid: false,
+    });
+
+    testCases.push({
+        description: `Invalid date: NaN`,
+        input: NaN,
+        isValid: false,
+    });
+
+    testCases.push({
+        description: `Invalid date: new Date("2023-02-30")`, // Invalid date (February 30th does not exist)
+        input: new Date("2023-02-30"),
+        isValid: false,
+    });
+
+    testCases.push({
+        description: `Invalid date: new Date("2023-13-01")`, // Invalid month (13)
+        input: new Date("2023-13-01"),
+        isValid: false,
+    });
+
+    testCases.push({
+        description: `Invalid date: new Date("2023-01-32")`, // Invalid day (32)
+        input: new Date("2023-01-32"),
+        isValid: false,
+    });
+
+    return testCases;
+}
+
+function sub(date: Date, years: number, months: number, days: number, constraint: string, dateFormat: string, isValid = true): TestCase {
+    const d = subYears(subMonths(subDays(date, days), months), years);
+    return testcase(d, years, months, days,  constraint,dateFormat, isValid);
+
+}
+
+function add(date: Date, years: number, months: number, days: number, constraint: string, dateFormat: string, isValid = true): TestCase {
+    const d = addYears(addMonths(addDays(date, days), months), years);
+    return testcase(d, years, months, days,  constraint, dateFormat, isValid);
+}
+
+function testcase(date: Date, years: number, months: number, days: number, constraint: string, dateFormat: string, isValid = true): TestCase {
+    const formattedDate = format(date, dateFormat);
+    return {
+        description: `${isValid ? 'valid' : 'invalid'} date ${constraint} ${years}y${months}m${days}d using ${dateFormat} format`,
+        input: formattedDate,
+        isValid: true
+    };
+}
+

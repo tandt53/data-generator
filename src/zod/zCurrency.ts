@@ -4,11 +4,9 @@ import {TestCase} from "../types";
 // Create a function that generates a Zod schema for currency codes
 export const zCurrencyCode = (allowedValues?: string[]) => {
     if (allowedValues && allowedValues.length > 0) {
-        // If allowed values are provided, create an enum schema
         return z.enum(allowedValues as [string, ...string[]])
             .describe("currency.code");
     } else {
-        // If no allowed values are provided, create a regex-based schema
         return z.string()
             .length(3)
             .regex(/^[A-Z]{3}$/)

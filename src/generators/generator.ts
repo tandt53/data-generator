@@ -4,6 +4,7 @@ import {EnumGenerator} from "./enumGenerator";
 import {ZodEffectsGenerator} from "./zodEffectsGenerator";
 import {StringGenerator} from "./stringGenerator";
 import {NumberGenerator} from "./numberGenerator";
+import {BooleanGenerator} from "./booleanGenerator";
 
 export interface Generator<S, T> {
     valid(schema: S): T[];
@@ -14,15 +15,14 @@ export interface Generator<S, T> {
 export class TestCaseGenerator implements Generator<ZodType, TestCase> {
 
     valid(schema: ZodType): TestCase[] {
+        console.log(schema.constructor.name);
         if (schema instanceof z.ZodString) {
             // if schema is ZodString, then add optional and nullable test cases after generating string test cases
             return StringGenerator.valid(schema);
         } else if (schema instanceof z.ZodNumber) {
             return NumberGenerator.valid(schema);
-            console.log('number');
         } else if (schema instanceof z.ZodBoolean) {
-            // if schema is ZodBoolean, then add optional and nullable test cases after generating boolean test cases
-            console.log('boolean');
+            return BooleanGenerator.valid(schema)
         } else if (schema instanceof z.ZodDate) {
             // if schema is ZodDate, then add optional and nullable test cases after generating date test cases
             console.log('date');
@@ -42,17 +42,19 @@ export class TestCaseGenerator implements Generator<ZodType, TestCase> {
             this.valid(schema.unwrap());
         } else if (schema instanceof z.ZodEffects) {
             return new ZodEffectsGenerator().valid(schema);
+        } else if (schema instanceof z.ZodEnum) {
+            return EnumGenerator.valid(schema);
         }
         return [];
     }
 
     invalid(schema: ZodType): TestCase[] {
         if (schema instanceof z.ZodString) {
-            console.log('string');
+            return StringGenerator.invalid(schema);
         } else if (schema instanceof z.ZodNumber) {
-            console.log('number');
+            return NumberGenerator.invalid(schema);
         } else if (schema instanceof z.ZodBoolean) {
-            console.log('boolean');
+            return BooleanGenerator.invalid(schema);
         } else if (schema instanceof z.ZodDate) {
             console.log('date');
         } else if (schema instanceof z.ZodArray) {
@@ -61,19 +63,14 @@ export class TestCaseGenerator implements Generator<ZodType, TestCase> {
             console.log('object');
         } else if (schema instanceof z.ZodOptional) {
             console.log('optional');
-            // parseZodSchema(schema._def.innerType);
             this.invalid(schema.unwrap());
         } else if (schema instanceof z.ZodNullable) {
             console.log('nullable');
-            // parseZodSchema(schema._def.innerType);
             this.invalid(schema.unwrap());
         } else if (schema instanceof z.ZodEffects) {
-            console.log('effects');
-            this.invalid(schema._def.schema);
-            // parseZodSchema(schema.unwrap());
+            return new ZodEffectsGenerator().invalid(schema);
         } else if (schema instanceof z.ZodEnum) {
-            console.log('enum');
-            return EnumGenerator.generateValidCases(schema);
+            return EnumGenerator.invalid(schema);
         }
         return [];
     }

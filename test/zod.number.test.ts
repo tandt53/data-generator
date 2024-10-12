@@ -16,8 +16,13 @@ import {expect} from "chai";
 // expect(inputs2.length).to.be.equals(4);
 // expect(inputs2).to.have.all.members([1, 10, 2, 9]);
 
-const number3 = z.number().min(1.00).max(10.00);
+const number3 = z.number().min(1).max(10);
 const testCases3 = new TestCaseGenerator().valid(number3);
-console.log(testCases3);
+console.log(JSON.stringify(testCases3, null, 2));
 const inputs3 = testCases3.map(testCase => testCase.input);
 expect(inputs3.length).to.be.equals(6);
+
+const testcases4 = new TestCaseGenerator().invalid(number3);
+console.log(JSON.stringify(testcases4, null, 2));
+const inputs4 = testcases4.map(testCase => testCase.input);
+expect(inputs4.length).to.be.equals(10);
