@@ -1,4 +1,12 @@
 {
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "files": true,
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  },
   "compilerOptions": {
     "target": "es2016",
     "module": "commonjs",
@@ -7,12 +15,18 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "dist",
+    "noImplicitAny": false,
     "types": [
       "node",
       "mocha",
       "@types/mocha",
       "@types/chai"
-    ]
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
   },
   "include": [
     "src",

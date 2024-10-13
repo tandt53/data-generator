@@ -1,7 +1,8 @@
 
 export type TestCase = {
     description: string;
-    input: any;
+    value: any;
     isValid: boolean;
     expected?: string;
+    expectedMessage?: string;
 }
