@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "mocha --require ts-node/register --recursive test/zDate.test.ts"
+    "test": "mocha --require ts-node/register --recursive test/zod.nullable.test.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^9.0.3",
@@ -21,7 +21,8 @@
     "mocha": "^10.2.0",
     "@types/mocha": "^10.0.1",
     "chai": "^4.3.10",
-    "@types/chai": "^4.3.9"
+    "@types/chai": "^4.3.9",
+    "tsconfig-paths": "^4.2.0"
   },
   "private": true
 }

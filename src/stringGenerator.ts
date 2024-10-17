@@ -5,9 +5,10 @@ import {createId} from '@paralleldrive/cuid2';
 import {ulid} from 'ulid';
 import RandExp from "randexp";
 import {ZGenerator} from "./registry";
-import {addTestCase, addValidTestCase} from "./testCaseUtils";
+import {tc} from "./testCaseUtils";
 
 export class StringGenerator implements ZGenerator<z.ZodString> {
+
     valid(schema: z.ZodString): TestCase[] {
         const testCases: TestCase[] = [];
         const checks = schema._def.checks;
@@ -76,25 +77,25 @@ export class StringGenerator implements ZGenerator<z.ZodString> {
         }
 
         if (isEmail) {
-            addValidTestCase(schema, testCases, "valid email", faker.internet.email());
+            testCases.push(tc(schema, "valid email", faker.internet.email()));
         } else if (isUrl) {
-            addValidTestCase(schema, testCases, "valid URL", faker.internet.url());
+            testCases.push(tc(schema, "valid URL", faker.internet.url()));
         } else if (isUuid) {
-            addValidTestCase(schema, testCases, "valid UUID", faker.string.uuid());
+            testCases.push(tc(schema, "valid UUID", faker.string.uuid()));
         } else if (isEmoji) {
-            addValidTestCase(schema, testCases, "valid emoji", faker.internet.emoji());
+            testCases.push(tc(schema, "valid emoji", faker.internet.emoji()));
         } else if (isCuid) {
-            addValidTestCase(schema, testCases, "valid cuid", createId());
+            testCases.push(tc(schema, "valid cuid", createId()));
         } else if (isCuid2) {
-            addValidTestCase(schema, testCases, "valid cuid2", createId());
+            testCases.push(tc(schema, "valid cuid2", createId()));
         } else if (isUlid) {
-            addValidTestCase(schema, testCases, "valid ulid", ulid());
+            testCases.push(tc(schema, "valid ulid", ulid()));
         } else if (regex) {
             try {
                 const randexp = new RandExp(regex);
                 randexp.max = Math.min(20, max);
                 const validInput = randexp.gen();
-                addValidTestCase(schema, testCases, `valid regex match for ${regex}`, validInput);
+                testCases.push(tc(schema, `valid regex match for ${regex}`, validInput));
             } catch (error) {
                 console.warn(`Unable to generate valid regex match for ${regex}`);
             }
@@ -104,7 +105,7 @@ export class StringGenerator implements ZGenerator<z.ZodString> {
             });
             if (startsWith) input = startsWith + input;
             if (endsWith) input = input.slice(0, -endsWith.length) + endsWith;
-            addValidTestCase(schema, testCases, `valid string`, input);
+            testCases.push(tc(schema, `valid string`, input));
         }
 
         return testCases;
@@ -172,40 +173,40 @@ export class StringGenerator implements ZGenerator<z.ZodString> {
             }
         }
 
-        addTestCase(schema, testCases, "invalid: not a string", 123);
+        testCases.push(tc(schema, "invalid: not a string", 123));
 
         if (isEmail) {
-            addTestCase(schema, testCases, "invalid email", "not-an-email");
+            testCases.push(tc(schema, "invalid email", "not-an-email"));
         } else if (isUrl) {
-            addTestCase(schema, testCases, "invalid URL", "not-a-url");
+            testCases.push(tc(schema, "invalid URL", "not-a-url"));
         } else if (isUuid) {
-            addTestCase(schema, testCases, "invalid UUID", "not-a-uuid");
+            testCases.push(tc(schema, "invalid UUID", "not-a-uuid"));
         } else if (isEmoji) {
-            addTestCase(schema, testCases, "invalid emoji", "not-an-emoji");
+            testCases.push(tc(schema, "invalid emoji", "not-an-emoji"));
         } else if (isCuid || isCuid2 || isUlid) {
-            addTestCase(schema, testCases, "invalid ID", "invalid-id");
+            testCases.push(tc(schema, "invalid ID", "invalid-id"));
         } else if (regex) {
             let invalidInput = '';
             do {
                 invalidInput = faker.string.sample({min, max: Math.min(20, max)});
             } while (regex.test(invalidInput));
-            addTestCase(schema, testCases, `invalid regex match for ${regex}`, invalidInput);
+            testCases.push(tc(schema, `invalid regex match for ${regex}`, invalidInput));
         } else {
             if (min > 0) {
-                addTestCase(schema, testCases, `string too short (length < ${min})`,
-                    faker.string.alpha(Math.max(0, min - 1)));
+                testCases.push(tc(schema, `string too short (length < ${min})`,
+                    faker.string.alpha(Math.max(0, min - 1))));
             }
             if (max < Number.MAX_SAFE_INTEGER) {
-                addTestCase(schema, testCases, `string too long (length > ${max})`,
-                    faker.string.alpha(max + 1));
+                testCases.push(tc(schema, `string too long (length > ${max})`,
+                    faker.string.alpha(max + 1)));
             }
             if (startsWith) {
-                addTestCase(schema, testCases, `string not starting with "${startsWith}"`,
-                    "x" + faker.string.alpha());
+                testCases.push(tc(schema, `string not starting with "${startsWith}"`,
+                    "x" + faker.string.alpha()));
             }
             if (endsWith) {
-                addTestCase(schema, testCases, `string not ending with "${endsWith}"`,
-                    faker.string.alpha() + "x");
+                testCases.push(tc(schema, `string not ending with "${endsWith}"`,
+                    faker.string.alpha() + "x"));
             }
         }
 

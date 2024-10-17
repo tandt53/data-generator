@@ -1,76 +1,78 @@
-import {TestCase} from "../types";
+import { TestCase } from "./types";
+import { ZGenerator } from "./registry";
+import { z } from "zod";
 
-export class BooleanGenerator {
-    static valid(schema: any): TestCase[] {
+export class BooleanGenerator implements ZGenerator<z.ZodBoolean> {
+    valid(schema: z.ZodBoolean): TestCase[] {
         return [
             {
                 description: `Valid boolean: true`,
-                input: true,
+                value: true,
                 isValid: true,
             },
             {
                 description: `Valid boolean: false`,
-                input: false,
+                value: false,
                 isValid: true,
             },
         ];
     }
 
-    static invalid(schema: any): TestCase[] {
+    invalid(schema: z.ZodBoolean): TestCase[] {
         return [
             {
                 description: `Invalid boolean: string "true"`,
-                input: "true",
+                value: "true",
                 isValid: false,
             },
             {
                 description: `Invalid boolean: string "false"`,
-                input: "false",
+                value: "false",
                 isValid: false,
             },
             {
                 description: `Invalid boolean: number 1`,
-                input: 1,
+                value: 1,
                 isValid: false,
             },
             {
                 description: `Invalid boolean: number 0`,
-                input: 0,
+                value: 0,
                 isValid: false,
             },
             {
                 description: `Invalid boolean: null`,
-                input: null,
+                value: null,
                 isValid: false,
             },
             {
                 description: `Invalid boolean: undefined`,
-                input: undefined,
+                value: undefined,
                 isValid: false,
             },
             {
                 description: `Invalid boolean: object`,
-                input: {},
+                value: {},
                 isValid: false,
             },
             {
                 description: `Invalid boolean: array`,
-                input: [],
+                value: [],
                 isValid: false,
             },
             {
                 description: `Invalid boolean: NaN`,
-                input: NaN,
+                value: NaN,
                 isValid: false,
             },
             {
                 description: `Invalid boolean: Infinity`,
-                input: Infinity,
+                value: Infinity,
                 isValid: false,
             },
             {
                 description: `Invalid boolean: -Infinity`,
-                input: -Infinity,
+                value: -Infinity,
                 isValid: false,
             },
         ];

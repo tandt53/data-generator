@@ -1,5 +1,5 @@
 import {ZodType} from "zod";
-import {TestCase} from "../types";
+import {TestCase} from "./types";
 import {StringGenerator} from "./stringGenerator";
 import {NumberGenerator} from "./numberGenerator";
 import {BooleanGenerator} from "./booleanGenerator";
