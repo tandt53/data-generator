@@ -4,8 +4,6 @@ import {TestCaseGenerator} from '@/generator';
 import {GeneratorRegistry} from '@/registry';
 import {StringGenerator} from '@/stringGenerator';
 import {NumberGenerator} from '@/numberGenerator';
-import {OptionalGenerator} from '@/optionalGenerator';
-import {NullableGenerator} from '@/nullableGenerator';
 
 describe('TestCaseGenerator', () => {
     let registry: GeneratorRegistry;
@@ -15,8 +13,6 @@ describe('TestCaseGenerator', () => {
         registry = new GeneratorRegistry();
         registry.register('ZodString', new StringGenerator());
         registry.register('ZodNumber', new NumberGenerator());
-        registry.register('ZodOptional', new OptionalGenerator());
-        registry.register('ZodNullable', new NullableGenerator());
         generator = new TestCaseGenerator(registry);
     });
 

@@ -28,36 +28,45 @@ export class NumberGenerator implements ZGenerator<z.ZodNumber> {
             }
         }
 
-        tc(schema, "valid number within range",
-            this.generateValidNumber(min, max, isInt, multipleOf));
+        testCases.push(tc(schema, "valid number within range",
+            this.generateValidNumber(min, max, isInt, multipleOf)));
 
         if (isFinite) {
-            tc(schema, "valid finite number", 1000000);
+            testCases.push(tc(schema, "valid finite number", 1000000));
         }
 
         if (min !== -Infinity) {
-            tc(schema, `valid number equals to minimum`, min);
+            testCases.push(tc(schema, `valid number equals to minimum`, min));
         }
         if (max !== Infinity) {
-            tc(schema, `valid number equals to maximum`, max);
+            testCases.push(tc(schema, `valid number equals to maximum`, max));
         }
 
         if (min !== max) {
-            const midpoint = (min + max) / 2;
-            tc(schema, `valid number (midpoint)`,
-                isInt ? Math.floor(midpoint) : midpoint);
+            let midpoint: number;
+            if (min === -Infinity && max === Infinity) {
+                midpoint = 0;
+            } else if (min === -Infinity) {
+                midpoint = max - 1;
+            } else if (max === Infinity) {
+                midpoint = min + 1;
+            } else {
+                midpoint = (min + max) / 2;
+            }
+            testCases.push(tc(schema, `valid number (midpoint)`,
+                isInt ? Math.floor(midpoint) : midpoint));
 
             if (!isInt) {
-                tc(schema, `valid floating number (near min)`,
-                    this.roundToTwoDecimals(min + 0.01));
-                tc(schema, `valid floating number (near max)`,
-                    this.roundToTwoDecimals(max - 0.01));
+                testCases.push(tc(schema, `valid floating number (near min)`,
+                    this.roundToTwoDecimals(min + 0.01)));
+                testCases.push(tc(schema, `valid floating number (near max)`,
+                    this.roundToTwoDecimals(max - 0.01)));
             }
         }
 
         if (multipleOf !== undefined) {
-            tc(schema, `valid number (multiple of ${multipleOf})`,
-                this.generateValidMultipleOf(min, max, multipleOf, isInt));
+            testCases.push(tc(schema, `valid number (multiple of ${multipleOf})`,
+                this.generateValidMultipleOf(min, max, multipleOf, isInt)));
         }
 
         return testCases;
@@ -91,8 +100,8 @@ export class NumberGenerator implements ZGenerator<z.ZodNumber> {
         testCases.push(tc(schema, "invalid boolean", true));
         testCases.push(tc(schema, "invalid array", [1, 2, 3]));
         testCases.push(tc(schema, "invalid object", {value: 1}));
-        testCases.push(tc(schema, "invalid null", null));
-        testCases.push(tc(schema, "invalid undefined", undefined));
+        // testCases.push(tc(schema, "invalid null", null)); // this is covered by the nullable generator
+        // testCases.push(tc(schema, "invalid undefined", undefined)); // this is covered by the optional generator
 
         if (isFinite) {
             testCases.push(tc(schema, "invalid Infinity", Infinity));

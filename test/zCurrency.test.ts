@@ -1,8 +1,8 @@
 // Example usage
-import {zCurrencyCode, zCurrencyCodeInvalidGenerator, zCurrencyCodeValidGenerator} from "../src/zod/zCurrency";
-import {TestCaseGenerator} from "../src/generators/generator";
-
-const allowedValues = ["IDR", "PHP"];
+// import {zCurrencyCode, zCurrencyCodeInvalidGenerator, zCurrencyCodeValidGenerator} from "../src/zod/zCurrency";
+// import {TestCaseGenerator} from "../src/generators/generator";
+//
+// const allowedValues = ["IDR", "PHP"];
 // const validCases = zCurrencyCodeValidGenerator(allowedValues);
 // const invalidCases = zCurrencyCodeInvalidGenerator(allowedValues);
 //

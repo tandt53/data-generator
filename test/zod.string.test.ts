@@ -31,6 +31,22 @@ describe('StringGenerator', () => {
             expect(result[0].value).to.have.lengthOf.at.most(10);
         });
 
+        it('should generate a valid emoji', () => {
+            const schema = z.string().emoji();
+            const result = generator.valid(schema);
+            expect(result).to.have.lengthOf.at.least(1);
+            expect(result[0].value).to.match(/\p{Emoji}/u);
+            expect(result[0].isValid).to.be.true;
+        });
+
+        it('should generate a valid string with exact length', () => {
+            const schema = z.string().length(5);
+            const result = generator.valid(schema);
+            expect(result).to.have.lengthOf.at.least(1);
+            expect(result[0].value).to.have.lengthOf(5);
+            expect(result[0].isValid).to.be.true;
+        });
+
         it('should generate a valid email', () => {
             const schema = z.string().email();
             const result = generator.valid(schema);
@@ -91,7 +107,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid string (not a string)', () => {
             const schema = z.string();
             const result = generator.invalid(schema);
-            const notStringCase = result.find(c => c.description === 'not a string');
+            const notStringCase = result.find(c => c.description === 'invalid: not a string');
             expect(notStringCase).to.exist;
             expect(notStringCase!.value).to.not.be.a('string');
             expect(notStringCase!.isValid).to.be.false;
@@ -116,6 +132,22 @@ describe('StringGenerator', () => {
             expect(longCase!.value).to.have.lengthOf.above(5);
             expect(longCase!.isValid).to.be.false;
             expect(longCase!.expectedMessage).to.match(/String must contain at most 5 character\(s\)/);
+        });
+
+        it('should generate invalid cases for emoji', () => {
+            const schema = z.string().emoji();
+            const result = generator.invalid(schema);
+            expect(result).to.have.lengthOf.at.least(2);
+            expect(result.some(tc => tc.value === 'not-an-emoji' && !tc.isValid)).to.be.true;
+        });
+
+        it('should generate invalid cases for exact length', () => {
+            const schema = z.string().length(5);
+            const result = generator.invalid(schema);
+            expect(result).to.have.lengthOf.at.least(2);
+            expect(result.some(tc => tc.value.length < 5)).to.be.true;
+            expect(result.some(tc => tc.value.length > 5)).to.be.true;
+            expect(result.every(tc => !tc.isValid)).to.be.true;
         });
 
         it('should generate an invalid email', () => {
@@ -172,6 +204,30 @@ describe('StringGenerator', () => {
             expect(invalidEnd!.isValid).to.be.false;
             expect(invalidEnd!.expectedMessage).to.equal('Invalid');
             expect(invalidEnd!.value.endsWith('bar')).to.be.false;
+        });
+
+        it('should generate invalid cases for CUID', () => {
+            const schema = z.string().cuid();
+            const result = generator.invalid(schema);
+            expect(result).to.have.lengthOf.at.least(1);
+            expect(result.some(tc => tc.value === 'invalid-id')).to.be.true;
+            expect(result.every(tc => !tc.isValid)).to.be.true;
+        });
+
+        it('should generate invalid cases for CUID2', () => {
+            const schema = z.string().cuid2();
+            const result = generator.invalid(schema);
+            expect(result).to.have.lengthOf.at.least(1);
+            expect(result.some(tc => tc.value === 'invalid-id')).to.be.true;
+            expect(result.every(tc => !tc.isValid)).to.be.true;
+        });
+
+        it('should generate invalid cases for ULID', () => {
+            const schema = z.string().ulid();
+            const result = generator.invalid(schema);
+            expect(result).to.have.lengthOf.at.least(1);
+            expect(result.some(tc => tc.value === 'invalid-id')).to.be.true;
+            expect(result.every(tc => !tc.isValid)).to.be.true;
         });
     });
 });
