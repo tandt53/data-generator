@@ -74,7 +74,6 @@ describe('StringGenerator', () => {
         it('should generate a valid cuid2', () => {
             const schema = z.string().cuid2();
             const result = generator.valid(schema);
-            console.log(JSON.stringify(result));
             expect(isCuid(result[0].value), `${result[0].value} is not a valid cuid2`).to.be.true;
         });
 
