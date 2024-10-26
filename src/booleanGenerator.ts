@@ -6,12 +6,12 @@ export class BooleanGenerator implements ZGenerator<z.ZodBoolean> {
     valid(schema: z.ZodBoolean): TestCase[] {
         return [
             {
-                description: `Valid boolean: true`,
+                description: `Should accept boolean true value`,
                 value: true,
                 isValid: true,
             },
             {
-                description: `Valid boolean: false`,
+                description: `Should accept boolean false value`,
                 value: false,
                 isValid: true,
             },
@@ -21,57 +21,57 @@ export class BooleanGenerator implements ZGenerator<z.ZodBoolean> {
     invalid(schema: z.ZodBoolean): TestCase[] {
         return [
             {
-                description: `Invalid boolean: string "true"`,
+                description: `Should reject string 'true' as invalid boolean`,
                 value: "true",
                 isValid: false,
             },
             {
-                description: `Invalid boolean: string "false"`,
+                description: `Should reject string 'false' as invalid boolean`,
                 value: "false",
                 isValid: false,
             },
             {
-                description: `Invalid boolean: number 1`,
+                description: `Should reject number 1 as invalid boolean`,
                 value: 1,
                 isValid: false,
             },
             {
-                description: `Invalid boolean: number 0`,
+                description: `Should reject number 0 as invalid boolean`,
                 value: 0,
                 isValid: false,
             },
+            // {
+            //     description: `Should reject null as invalid boolean`,
+            //     value: null,
+            //     isValid: false,
+            // },
+            // {
+            //     description: `Invalid boolean: undefined`,
+            //     value: undefined,
+            //     isValid: false,
+            // },
             {
-                description: `Invalid boolean: null`,
-                value: null,
-                isValid: false,
-            },
-            {
-                description: `Invalid boolean: undefined`,
-                value: undefined,
-                isValid: false,
-            },
-            {
-                description: `Invalid boolean: object`,
+                description: `Should reject object value as invalid boolean`,
                 value: {},
                 isValid: false,
             },
             {
-                description: `Invalid boolean: array`,
+                description: `Should reject array value as invalid boolean`,
                 value: [],
                 isValid: false,
             },
             {
-                description: `Invalid boolean: NaN`,
+                description: `Should reject NaN as invalid boolean`,
                 value: NaN,
                 isValid: false,
             },
             {
-                description: `Invalid boolean: Infinity`,
+                description: `Should reject number Infinity as invalid boolean`,
                 value: Infinity,
                 isValid: false,
             },
             {
-                description: `Invalid boolean: -Infinity`,
+                description: `Should reject number -Infinity as invalid boolean`,
                 value: -Infinity,
                 isValid: false,
             },

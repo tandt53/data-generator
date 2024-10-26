@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import {z} from 'zod';
 import {StringGenerator} from '@/stringGenerator';
 import {createId, isCuid} from '@paralleldrive/cuid2';
+import {TestCase} from "@/types";
 
 describe('StringGenerator', () => {
     let generator: StringGenerator;
@@ -106,7 +107,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid string (not a string)', () => {
             const schema = z.string();
             const result = generator.invalid(schema);
-            const notStringCase = result.find(c => c.description === 'invalid: not a string');
+            const notStringCase = result.find(c => c.description.includes('a non-string'));
             expect(notStringCase).to.exist;
             expect(notStringCase!.value).to.not.be.a('string');
             expect(notStringCase!.isValid).to.be.false;
@@ -152,7 +153,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid email', () => {
             const schema = z.string().email();
             const result = generator.invalid(schema);
-            const invalidEmail = result.find(c => c.description === 'invalid email');
+            const invalidEmail = result.find(c => c.description.includes('invalid email'));
             expect(invalidEmail).to.exist;
             expect(invalidEmail!.isValid).to.be.false;
             expect(invalidEmail!.expectedMessage).to.equal('Invalid email');
@@ -161,7 +162,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid URL', () => {
             const schema = z.string().url();
             const result = generator.invalid(schema);
-            const invalidUrl = result.find(c => c.description === 'invalid URL');
+            const invalidUrl = result.find(c => c.description.includes('invalid URL'));
             expect(invalidUrl).to.exist;
             expect(invalidUrl!.isValid).to.be.false;
             expect(invalidUrl!.expectedMessage).to.equal('Invalid url');
@@ -170,7 +171,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid UUID', () => {
             const schema = z.string().uuid();
             const result = generator.invalid(schema);
-            const invalidUuid = result.find(c => c.description === 'invalid UUID');
+            const invalidUuid = result.find(c => c.description.includes('invalid UUID'));
             expect(invalidUuid).to.exist;
             expect(invalidUuid!.isValid).to.be.false;
             expect(invalidUuid!.expectedMessage).to.equal('Invalid uuid');
@@ -179,7 +180,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid string not matching regex', () => {
             const schema = z.string().regex(/^[a-z]{3}$/);
             const result = generator.invalid(schema);
-            const invalidRegex = result.find(c => c.description.includes('invalid regex match'));
+            const invalidRegex = result.find(c => c.description.includes('not matched with regex'));
             expect(invalidRegex).to.exist;
             expect(invalidRegex!.isValid).to.be.false;
             expect(invalidRegex!.expectedMessage).to.equal('Invalid');
@@ -188,7 +189,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid string not starting with', () => {
             const schema = z.string().startsWith('foo', 'Invalid');
             const result = generator.invalid(schema);
-            const invalidStart = result.find(c => c.description.includes('not starting with'));
+            const invalidStart = result.find(c => c.description.includes('not start with'));
             expect(invalidStart).to.exist;
             expect(invalidStart!.isValid).to.be.false;
             expect(invalidStart!.expectedMessage).to.equal('Invalid');
@@ -198,7 +199,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid string not ending with', () => {
             const schema = z.string().endsWith('bar', 'Invalid');
             const result = generator.invalid(schema);
-            const invalidEnd = result.find(c => c.description.includes('not ending with'));
+            const invalidEnd = result.find(c => c.description.includes('not end with'));
             expect(invalidEnd).to.exist;
             expect(invalidEnd!.isValid).to.be.false;
             expect(invalidEnd!.expectedMessage).to.equal('Invalid');
@@ -227,6 +228,18 @@ describe('StringGenerator', () => {
             expect(result).to.have.lengthOf.at.least(1);
             expect(result.some(tc => tc.value === 'invalid-id')).to.be.true;
             expect(result.every(tc => !tc.isValid)).to.be.true;
+        });
+    });
+
+    describe('integration with Zod', () => {
+        it('should generate cases that align with Zod validation', () => {
+            const schema = z.string();
+            const allCases = [...generator.valid(schema), ...generator.invalid(schema)];
+
+            allCases.forEach((testCase: TestCase) => {
+                const result = schema.safeParse(testCase.value);
+                expect(result.success).to.equal(testCase.isValid);
+            });
         });
     });
 });

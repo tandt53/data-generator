@@ -34,7 +34,7 @@ describe('BooleanGenerator', () => {
     describe('invalid', () => {
         it('should return the correct number of invalid test cases', () => {
             const invalidCases = generator.invalid(schema);
-            expect(invalidCases).to.have.lengthOf(11);
+            expect(invalidCases).to.have.lengthOf(9);
         });
 
         it('should mark all cases as invalid', () => {
@@ -50,8 +50,6 @@ describe('BooleanGenerator', () => {
             expect(values).to.include('false');
             expect(values).to.include(1);
             expect(values).to.include(0);
-            expect(values).to.include(null);
-            expect(values).to.include(undefined);
             expect(values).to.deep.include({});
             expect(values).to.deep.include([]);
             expect(values.some(Number.isNaN)).to.be.true;

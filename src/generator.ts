@@ -1,22 +1,23 @@
-import { z, ZodNullable, ZodOptional, ZodType, ZodObject } from 'zod';
-import { TestCase } from "./types";
-import { GeneratorRegistry } from "./registry";
-import { tc } from "./testCaseUtils";
+import {z, ZodNullable, ZodOptional, ZodType, ZodObject} from 'zod';
+import {TestCase} from "./types";
+import {GeneratorRegistry} from "./registry";
+import {tc} from "./testCaseUtils";
 
 export class TestCaseGenerator {
-    constructor(private registry: GeneratorRegistry) {}
+    constructor(private registry: GeneratorRegistry) {
+    }
 
     valid(schema: ZodType): TestCase[] {
         if (schema instanceof ZodOptional) {
             return [
-                tc(schema, "valid undefined for optional", undefined),
+                tc(schema, "Should accept undefined for optional field", undefined),
                 ...this.valid(schema.unwrap())
             ];
         }
 
         if (schema instanceof ZodNullable) {
             return [
-                tc(schema, "valid null for nullable", null),
+                tc(schema, "Should accept null for nullable field", null),
                 ...this.valid(schema.unwrap())
             ];
         }
@@ -48,7 +49,7 @@ export class TestCaseGenerator {
         return generator.invalid(schema);
     }
 
-    private validObject(schema: ZodObject<any>): TestCase[] {
+    private validObject(schema: ZodObject<any>, parentPath: string = ''): TestCase[] {
         const testCases: TestCase[] = [];
         const shape = schema.shape;
 
@@ -56,55 +57,157 @@ export class TestCaseGenerator {
         for (const [key, propertySchema] of Object.entries(shape)) {
             if (!this.isZodType(propertySchema)) continue;
 
-            // Get valid cases for the current field
-            const validCases = this.valid(propertySchema);
+            const currentPath = parentPath ? `${parentPath}.${key}` : key;
 
-            // Create test cases with each valid value for this field
-            for (const validCase of validCases) {
-                const baseObject = this.createValidObject(shape, key);
-                baseObject[key] = validCase.value;
-                testCases.push(tc(
-                    schema,
-                    `testing ${key}: ${validCase.description}`,
-                    baseObject
-                ));
+            // Unwrap optional/nullable to check for ZodObject
+            const unwrappedSchema = this.unwrapSchema(propertySchema);
+
+            if (unwrappedSchema instanceof ZodObject) {
+                if (propertySchema instanceof ZodOptional) {
+                    // Add undefined case for optional object
+                    const baseObject = this.createValidObject(shape, key);
+                    testCases.push(tc(
+                        schema,
+                        `Should accept undefined for optional object in '${currentPath}'`,
+                        baseObject
+                    ));
+                }
+
+                if (propertySchema instanceof ZodNullable) {
+                    // Add null case for nullable object
+                    const baseObject = this.createValidObject(shape, key);
+                    baseObject[key] = null;
+                    testCases.push(tc(
+                        schema,
+                        `Should accept null value for nullable object in '${currentPath}'`,
+                        baseObject
+                    ));
+                }
+
+                // Handle nested objects recursively with updated path
+                const nestedCases = this.validObject(unwrappedSchema, currentPath);
+                for (const nestedCase of nestedCases) {
+                    const baseObject = this.createValidObject(shape, key);
+                    baseObject[key] = nestedCase.value;
+                    testCases.push(tc(
+                        schema,
+                        nestedCase.description,
+                        baseObject
+                    ));
+                }
+            } else {
+                // Handle non-object fields
+                const validCases = this.valid(propertySchema);
+                for (const validCase of validCases) {
+                    const baseObject = this.createValidObject(shape, key);
+                    baseObject[key] = validCase.value;
+                    testCases.push(tc(
+                        schema,
+                        `${validCase.description} for '${currentPath}'`,
+                        baseObject
+                    ));
+                }
             }
         }
 
         // Add one case with random valid values
-        testCases.push(tc(schema, "all fields with valid values", this.createValidObject(shape)));
+        // Add complete valid object case
+        testCases.push(tc(
+            schema,
+            parentPath
+                ? `Should accept valid complete nested object for '${parentPath}'`
+                : "Should accept object with all fields containing valid values",
+            this.createValidObject(shape)
+        ));
 
         return testCases.filter(tc => tc.isValid);
     }
 
-    private invalidObject(schema: ZodObject<any>): TestCase[] {
+    private unwrapSchema(schema: ZodType): ZodType {
+        if (schema instanceof ZodOptional || schema instanceof ZodNullable) {
+            return this.unwrapSchema(schema.unwrap());
+        }
+        return schema;
+    }
+
+    private invalidObject(schema: ZodObject<any>, parentPath: string = ''): TestCase[] {
         const testCases: TestCase[] = [];
         const shape = schema.shape;
 
-        // Generate invalid cases for each field
         for (const [key, propertySchema] of Object.entries(shape)) {
             if (!this.isZodType(propertySchema)) continue;
 
-            if (!(propertySchema instanceof ZodOptional)) {
-                // Test missing required field
-                const missingObject = this.createValidObject(shape, key);
-                testCases.push(tc(schema, `testing ${key}: missing required field`, missingObject));
-            }
+            const currentPath = parentPath ? `${parentPath}.${key}` : key;
+            const unwrappedSchema = this.unwrapSchema(propertySchema);
 
-            // Test invalid values for field
-            const invalidCases = this.invalid(propertySchema);
-            for (const invalidCase of invalidCases) {
+            if (unwrappedSchema instanceof ZodObject) {
+                // Handle type error for the object itself
                 const baseObject = this.createValidObject(shape, key);
-                baseObject[key] = invalidCase.value;
+                baseObject[key] = "not an object";
                 testCases.push(tc(
                     schema,
-                    `testing ${key}: ${invalidCase.description}`,
+                    `Should reject non-object value for object field '${currentPath}'`,
                     baseObject
                 ));
+
+                // Handle nested objects recursively with updated path
+                const nestedCases = this.invalidObject(unwrappedSchema, currentPath);
+                for (const nestedCase of nestedCases) {
+                    const baseObject = this.createValidObject(shape, key);
+                    baseObject[key] = nestedCase.value;
+                    testCases.push(tc(
+                        schema,
+                        `${nestedCase.description}`,
+                        baseObject
+                    ));
+                }
+            } else {
+                // Handle missing required field case
+                if (!(propertySchema instanceof ZodOptional)) {
+                    const missingObject = this.createValidObject(shape, key);
+                    testCases.push(tc(
+                        schema,
+                        `Should reject object missing required field '${currentPath}'`,
+                        missingObject
+                    ));
+                }
+
+                // Handle invalid values
+                const invalidCases = this.invalid(propertySchema);
+                for (const invalidCase of invalidCases) {
+                    const baseObject = this.createValidObject(shape, key);
+                    baseObject[key] = invalidCase.value;
+                    testCases.push(tc(
+                        schema,
+                        `Should reject invalid ${this.getSchemaTypeName(propertySchema)} for '${currentPath}': ${invalidCase.description}`,
+                        baseObject
+                    ));
+                }
             }
         }
 
-        // Add one case with an unexpected critical field
+        // Test cases for object-level validation
+        testCases.push(tc(schema,
+            "Should reject null instead of object",
+            null
+        ));
+
+        testCases.push(tc(schema,
+            "Should reject undefined instead of object",
+            undefined
+        ));
+
+        testCases.push(tc(schema,
+            "Should reject array instead of object",
+            []
+        ));
+
+        testCases.push(tc(schema,
+            "Should reject primitive instead of object",
+            "not an object"
+        ));
+
+        // Add security test case
         const objectWithExtra = this.createValidObject(shape);
         objectWithExtra.isAdmin = true;
         testCases.push(tc(schema, "testing security: unexpected isAdmin field", objectWithExtra));
@@ -133,5 +236,14 @@ export class TestCaseGenerator {
 
     private isZodType(schema: unknown): schema is ZodType {
         return schema instanceof ZodType;
+    }
+
+    private getSchemaTypeName(schema: ZodType): string {
+        const typeName = schema.constructor.name.replace('Zod', '').toLowerCase();
+        return typeName === 'string' ? 'string value' :
+            typeName === 'number' ? 'numeric value' :
+                typeName === 'boolean' ? 'boolean value' :
+                    typeName === 'date' ? 'date value' :
+                        typeName;
     }
 }

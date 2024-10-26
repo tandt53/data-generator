@@ -28,18 +28,18 @@ export class NumberGenerator implements ZGenerator<z.ZodNumber> {
             }
         }
 
-        testCases.push(tc(schema, "valid number within range",
+        testCases.push(tc(schema, "Should accept number within valid range",
             this.generateValidNumber(min, max, isInt, multipleOf)));
 
         if (isFinite) {
-            testCases.push(tc(schema, "valid finite number", 1000000));
+            testCases.push(tc(schema, "Should accept finite number within safe integer range", 1000000));
         }
 
         if (min !== -Infinity) {
-            testCases.push(tc(schema, `valid number equals to minimum`, min));
+            testCases.push(tc(schema, `Should accept number equal to minimum`, min));
         }
         if (max !== Infinity) {
-            testCases.push(tc(schema, `valid number equals to maximum`, max));
+            testCases.push(tc(schema, `Should accept number equal to maximum`, max));
         }
 
         if (min !== max) {
@@ -53,19 +53,19 @@ export class NumberGenerator implements ZGenerator<z.ZodNumber> {
             } else {
                 midpoint = (min + max) / 2;
             }
-            testCases.push(tc(schema, `valid number (midpoint)`,
+            testCases.push(tc(schema, `Should accept number (midpoint)`,
                 isInt ? Math.floor(midpoint) : midpoint));
 
             if (!isInt) {
-                testCases.push(tc(schema, `valid floating number (near min)`,
+                testCases.push(tc(schema, `Should accept floating number (near min)`,
                     this.roundToTwoDecimals(min + 0.01)));
-                testCases.push(tc(schema, `valid floating number (near max)`,
+                testCases.push(tc(schema, `Should accept floating number (near max)`,
                     this.roundToTwoDecimals(max - 0.01)));
             }
         }
 
         if (multipleOf !== undefined) {
-            testCases.push(tc(schema, `valid number (multiple of ${multipleOf})`,
+            testCases.push(tc(schema, `Should accept number that is multiple of ${multipleOf} within range`,
                 this.generateValidMultipleOf(min, max, multipleOf, isInt)));
         }
 
@@ -96,35 +96,33 @@ export class NumberGenerator implements ZGenerator<z.ZodNumber> {
             }
         }
 
-        testCases.push(tc(schema, "invalid string", "not-a-number"));
-        testCases.push(tc(schema, "invalid boolean", true));
-        testCases.push(tc(schema, "invalid array", [1, 2, 3]));
-        testCases.push(tc(schema, "invalid object", {value: 1}));
-        // testCases.push(tc(schema, "invalid null", null)); // this is covered by the nullable generator
-        // testCases.push(tc(schema, "invalid undefined", undefined)); // this is covered by the optional generator
+        testCases.push(tc(schema, "Should reject string as invalid number", "not-a-number"));
+        testCases.push(tc(schema, "Should reject boolean as invalid number", true));
+        testCases.push(tc(schema, "Should reject array as invalid number", [1, 2, 3]));
+        testCases.push(tc(schema, "Should reject object as invalid number", {value: 1}));
 
         if (isFinite) {
-            testCases.push(tc(schema, "invalid Infinity", Infinity));
-            testCases.push(tc(schema, "invalid -Infinity", -Infinity));
-            testCases.push(tc(schema, "invalid NaN", NaN));
+            testCases.push(tc(schema, "Should reject Infinity as invalid number", Infinity));
+            testCases.push(tc(schema, "Should reject -Infinity as invalid number", -Infinity));
+            testCases.push(tc(schema, "Should reject NaN as invalid number", NaN));
         }
 
         if (isInt) {
-            testCases.push(tc(schema, "invalid float", 1.5));
+            testCases.push(tc(schema, "Should reject float as invalid number", 1.5));
         }
 
         if (min !== -Infinity) {
-            testCases.push(tc(schema, `invalid number less than minimum`,
+            testCases.push(tc(schema, `Should reject number less than minimum`,
                 this.roundToTwoDecimals(min - 1)));
         }
 
         if (max !== Infinity) {
-            testCases.push(tc(schema, `invalid number greater than maximum`,
+            testCases.push(tc(schema, `should reject number greater than maximum`,
                 this.roundToTwoDecimals(max + 1)));
         }
 
         if (multipleOf !== undefined) {
-            testCases.push(tc(schema, `invalid number (not multiple of ${multipleOf})`,
+            testCases.push(tc(schema, `Should reject number (not multiple of ${multipleOf})`,
                 this.generateInvalidMultipleOf(min, max, multipleOf, true))); // fixed isInt to true
         }
 
