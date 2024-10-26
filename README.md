@@ -46,25 +46,22 @@ console.log(JSON.stringify(invalidTestCases));
 ]
 ```
 
-
 ## ToDo
 
-| Type                                                      | Status | Notes |
-|-----------------------------------------------------------|--------|-------|
-| [String](https://zod.dev/?id=strings)                     |        |       |
-| [String - Datetimes](https://zod.dev/?id=datetimes)       |        |       |
-| [String - Dates](https://zod.dev/?id=dates)               |        |       |
-| [String - Times](https://zod.dev/?id=times)               |        |       |
-| [String - IP addresses](https://zod.dev/?id=ip-addresses) |        |       |
-| [Number](https://zod.dev/?id=numbers)                     |        |       |
-| [BigInt](https://zod.dev/?id=bigints)                     |        |       |
-| [NaNs](https://zod.dev/?id=nans)                          |        |       |
-| [Booleans](https://zod.dev/?id=booleans)                  |        |       |
-| [Dates](https://zod.dev/?id=dates-1)                      |        |       |
-| [Zod enums](https://zod.dev/?id=enums)                    |        |       |
-| [Native enums](https://zod.dev/?id=native-enums)          |        |       |
-| [Optionals](https://zod.dev/?id=optionals)                |        |       |
-| [Nullables](https://zod.dev/?id=nullables)                |        |       |
+- [x] [String](https://zod.dev/?id=strings)  
+- [ ] [String - Datetimes](https://zod.dev/?id=datetimes)  
+- [ ] [String - Dates](https://zod.dev/?id=dates)  
+- [ ] [String - Times](https://zod.dev/?id=times)  
+- [ ] [String - IP addresses](https://zod.dev/?id=ip-addresses)  
+- [x] [Number](https://zod.dev/?id=numbers)    
+- [ ] [BigInt](https://zod.dev/?id=bigints)    
+- [ ] [NaNs](https://zod.dev/?id=nans)         
+- [x] [Booleans](https://zod.dev/?id=booleans)  
+- [ ] [Dates](https://zod.dev/?id=dates-1)  
+- [x] [Zod enums](https://zod.dev/?id=enums)  
+- [ ] [Native enums](https://zod.dev/?id=native-enums)  
+- [x] [Optionals](https://zod.dev/?id=optionals)  
+- [x] [Nullables](https://zod.dev/?id=nullables)
 
 - The list in the table is from the [Zod documentation](https://zod.dev/?id)
 - Some types are not yet mentioned in the table.
