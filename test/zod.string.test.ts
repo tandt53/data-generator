@@ -107,7 +107,7 @@ describe('StringGenerator', () => {
         it('should generate an invalid string (not a string)', () => {
             const schema = z.string();
             const result = generator.invalid(schema);
-            const notStringCase = result.find(c => c.description.includes('a non-string'));
+            const notStringCase = result.find(c => c.description.includes('instead of string'));
             expect(notStringCase).to.exist;
             expect(notStringCase!.value).to.not.be.a('string');
             expect(notStringCase!.isValid).to.be.false;

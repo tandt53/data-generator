@@ -57,7 +57,6 @@ console.log(JSON.stringify(invalidTestCases));
 - [ ] [BigInt](https://zod.dev/?id=bigints)    
 - [ ] [NaNs](https://zod.dev/?id=nans)         
 - [x] [Booleans](https://zod.dev/?id=booleans)  
-- [ ] [Dates](https://zod.dev/?id=dates-1)  
 - [x] [Zod enums](https://zod.dev/?id=enums)  
 - [ ] [Native enums](https://zod.dev/?id=native-enums)  
 - [x] [Optionals](https://zod.dev/?id=optionals)  

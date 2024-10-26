@@ -3,6 +3,7 @@ import {TestCase} from "./types";
 import {StringGenerator} from "./stringGenerator";
 import {NumberGenerator} from "./numberGenerator";
 import {BooleanGenerator} from "./booleanGenerator";
+import {EnumGenerator} from "@/enumGenerator";
 
 export interface ZGenerator<T extends ZodType = ZodType, S = TestCase> {
     valid: (schema: T) => S[];
@@ -33,12 +34,6 @@ export class DefaultGeneratorRegistry extends GeneratorRegistry {
         this.register('ZodString', new StringGenerator());
         this.register('ZodNumber', new NumberGenerator());
         this.register('ZodBoolean', new BooleanGenerator());
-        // this.register('zDate', new DateGenerator());
-        // this.register('ZodArray', new ArrayGenerator());
-        // this.register('ZodObject', new ObjectGenerator());
-        // this.register('ZodOptional', new OptionalGenerator());
-        // this.register('ZodNullable', new NullableGenerator());
-        // this.register('ZodEffects', new EffectsGenerator());
-        // this.register('ZodEnum', new EnumGenerator());
+        this.register('ZodEnum', new EnumGenerator());
     }
 }

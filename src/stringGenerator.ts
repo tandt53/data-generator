@@ -33,6 +33,15 @@ export class StringGenerator implements ZGenerator<z.ZodString> {
 
         for (const check of checks) {
             switch (check.kind) {
+                case "datetime":
+                    testCases.push(...this.generateValidDatetimeCases(schema));
+                    return testCases;
+                case "date":
+                    testCases.push(...this.generateValidDateCases(schema));
+                    return testCases;
+                case "time":
+                    testCases.push(...this.generateValidTimeCases(schema));
+                    return testCases;
                 case "min":
                     min = check.value;
                     break;
@@ -130,6 +139,15 @@ export class StringGenerator implements ZGenerator<z.ZodString> {
 
         for (const check of checks) {
             switch (check.kind) {
+                case "datetime":
+                    testCases.push(...this.generateInvalidDatetimeCases(schema));
+                    break;
+                case "date":
+                    testCases.push(...this.generateInvalidDateCases(schema));
+                    break;
+                case "time":
+                    testCases.push(...this.generateInvalidTimeCases(schema));
+                    break;
                 case "min":
                     min = check.value;
                     break;
@@ -173,7 +191,7 @@ export class StringGenerator implements ZGenerator<z.ZodString> {
             }
         }
 
-        testCases.push(tc(schema, "Should reject a non-string (number)", 123));
+        // testCases.push(tc(schema, "Should reject a non-string (number)", 123));
 
         if (isEmail) {
             testCases.push(tc(schema, "Should reject an invalid email", "not-an-email"));
@@ -210,6 +228,99 @@ export class StringGenerator implements ZGenerator<z.ZodString> {
             }
         }
 
+        // Add common invalid type cases
+        testCases.push(...this.generateCommonInvalidCases(schema));
         return testCases;
+    }
+
+    private generateValidDatetimeCases(schema: z.ZodString): TestCase[] {
+        const now = new Date();
+        return [
+            tc(schema, "Should accept current datetime", now.toISOString()),
+            tc(schema, "Should accept start of year", new Date(now.getFullYear(), 0, 1).toISOString()),
+            tc(schema, "Should accept end of year", new Date(now.getFullYear(), 11, 31, 23, 59, 59).toISOString()),
+            tc(schema, "Should accept datetime with milliseconds", new Date(now.getTime() + 123).toISOString())
+        ];
+    }
+
+    private generateInvalidDatetimeCases(schema: z.ZodString): TestCase[] {
+        return [
+            tc(schema, "Should reject datetime without timezone => 2024-01-01T00:00:00",
+                "2024-01-01T00:00:00"),
+            tc(schema, "Should reject datetime with invalid month => 2024-13-01T00:00:00Z",
+                "2024-13-01T00:00:00Z"),
+            tc(schema, "Should reject datetime with invalid day => 2024-01-32T00:00:00Z",
+                "2024-01-32T00:00:00Z"),
+            tc(schema, "Should reject datetime with invalid hour => 2024-01-01T24:00:00Z",
+                "2024-01-01T24:00:00Z"),
+            tc(schema, "Should reject datetime with wrong separator => 2024-01-01 00:00:00Z",
+                "2024-01-01 00:00:00Z")
+        ];
+    }
+
+    private generateValidDateCases(schema: z.ZodString): TestCase[] {
+        const now = new Date();
+        return [
+            tc(schema, "Should accept current date", now.toISOString().split('T')[0]),
+            tc(schema, "Should accept start of year", new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0]),
+            tc(schema, "Should accept end of year", new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0]),
+            tc(schema, "Should accept leap year date", new Date(2024, 1, 29).toISOString().split('T')[0]), // Leap year
+            tc(schema, "Should accept middle of year", new Date(now.getFullYear(), 6, 15).toISOString().split('T')[0]) // July 15
+        ];
+    }
+
+    private generateInvalidDateCases(schema: z.ZodString): TestCase[] {
+        const curDate = new Date()
+        const years = curDate.getFullYear();
+        const months = curDate.getMonth() + 1;
+        const days = curDate.getDate();
+        const invalidMonth = 13;
+        const invalidDay = 32;
+        return [
+            tc(schema, `Should reject date with invalid month => ${years}-${invalidMonth}-${days}`,
+                `${years}-${invalidMonth}-${days}`),
+            tc(schema, `Should reject date with invalid day => ${years}-${months}-${invalidDay}`,
+                `${years}-${months}-${invalidDay}`),
+            tc(schema, "Should reject non-leap year date => 2023-02-29",
+                "2023-02-29"),
+            tc(schema, `Should reject date without hyphens => ${years}${months}${days}`,
+                `${years}${months}${days}`),
+            tc(schema, `Should reject date with wrong separator => ${years}/${months}/${days}`,
+                `${years}/${months}/${days}`)
+        ];
+    }
+
+    private generateValidTimeCases(schema: z.ZodString): TestCase[] {
+        return [
+            tc(schema, "Should accept current time", new Date().toTimeString().split(' ')[0]), // HH:mm:ss
+            tc(schema, "Should accept midnight", "00:00:00"),
+            tc(schema, "Should accept noon", "12:00:00"),
+            tc(schema, "Should accept end of day", "23:59:59"),
+            tc(schema, "Should accept time with specific seconds", "15:30:45") // Example time
+        ];
+    }
+
+    private generateInvalidTimeCases(schema: z.ZodString): TestCase[] {
+        return [
+            tc(schema, "Should reject time with invalid hour => 24:00:00",
+                "24:00:00"),
+            tc(schema, "Should reject time with invalid minute => 12:60:00",
+                "12:60:00"),
+            tc(schema, "Should reject time with invalid second => 12:00:60",
+                "12:00:60"),
+            tc(schema, "Should reject time without seconds => 12:00",
+                "12:00"),
+            tc(schema, "Should reject time with wrong separator => 12.00.00",
+                "12.00.00")
+        ];
+    }
+
+    private generateCommonInvalidCases(schema: z.ZodString): TestCase[] {
+        return [
+            tc(schema, "Should reject number instead of string", 123),
+            tc(schema, "Should reject boolean instead of string", true),
+            tc(schema, "Should reject object instead of string", {}),
+            tc(schema, "Should reject array instead of string", [])
+        ];
     }
 }
